@@ -1,0 +1,22 @@
+collection.aggregate([
+    { 
+        "$match":{
+
+        }
+    },
+    { 
+        "$group": {
+            "_id": { 
+                "time": {
+                    "$subtract": [
+                        "$time",
+                        { "$mod": [ "$time", 86400000 ] }
+                    ]
+                }
+            }
+        }
+    },
+    { 
+        "$count": 'totalCount' 
+    }
+])
