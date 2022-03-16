@@ -1,0 +1,61 @@
+https://stackoverflow.com/questions/26621951/mongodb-aggregation-pipeline-with-loop
+https://stackoverflow.com/questions/26814427/group-result-by-15-minutes-time-interval-in-mongodb
+https://stackoverflow.com/questions/61973316/aggregate-by-all-days-of-month-mongodb
+
+{UID: "123", TEMP: 11, site: "SITE123", updatedAt: ISODate("2014-09-12T21:55:19.326Z")}
+{UID: "123", TEMP: 10, site: "SITE123", updatedAt: ISODate("2014-09-12T21:55:20.491Z")}
+
+=======================================================
+collection.aggregate([
+    { "$match":{
+        "UID": uid,
+        "TEMP":{ "$exists": true }
+        "site" : "SITE123",
+        "updatedAt": {
+            "$gte": new Date(START_DATE_ARG), 
+            "$lte": new Date(END_DATE_ARG)
+        }}
+    }},
+
+    { "$group": {
+        "_id": { 
+            "uid": "$UID",
+            "year": { "$year": "$updatedAt" },
+            "month": { "$month": "$updatedAt" },
+            "day": { "$dayOfMonth" }
+        },
+        "avg": { "$avg": "$TEMP" },
+        "min": { "$min": "$TEMP" },
+        "max": { "$max": "$TEMP" }
+    }}
+])
+=======================================================
+collection.aggregate([
+    { "$match":{
+        "UID": uid,
+        "TEMP":{ "$exists": true }
+        "site" : "SITE123",
+        "updatedAt": {
+            "$gte": new Date(START_DATE_ARG), 
+            "$lte": new Date(END_DATE_ARG)
+        }}
+    }},
+
+    { "$group": {
+        "_id": { 
+            "uid": "$UID",
+            "date": {
+                "$subtract": [
+                    { "$subtract": [ "$updatedAt", new Date("1970-01-01") ] },
+                    { "$mod": [
+                        { "$subtract": [ "$updatedAt", new Date("1970-01-01") ] },
+                        1000 * 60 * 60 * 24
+                    ]}
+                ]
+            }
+        },
+        "avg": { "$avg": "$TEMP" },
+        "min": { "$min": "$TEMP" },
+        "max": { "$max": "$TEMP" }
+    }}
+])
